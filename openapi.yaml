@@ -2,12 +2,13 @@ openapi: 3.0.1
 info:
   title: Codat Plugin
   description: |
-    A plugin that allows the user to interrogate company data using ChatGPT. If the user doesn't specify which company they want, ask them first. 
-    You can also provide them with a list of available companies. 
+    A plugin that allows the user to interrogate company data using ChatGPT. 
+    You can also provide them with a list of available connected companies using the getCompanies operation.
+    The plugin currently supports interrogation of 'invoices' and 'bills' on the Codat Accounting API. More capabilities will be added soon. 
     Most operations can be called without a query string, and they will perform an open query and return an array of items or aggregated results. 
     If supplying a 'query' string, the following comparison operators are supported = != > < >= <= ~ (contains), 
     and they can be combined using logical operators && (AND) and || (OR), and curly braces for grouping of logical operations. 
-    For example, "{totalAmount > 100 || totalAmount < 50} && status != paid". 
+    For example, "{totalAmount>100||totalAmount<50}&&status!=paid". 
     Here is an example of a query using a string value "companyName=Sample Company".
     You can also provide an 'orderBy' string, which should be the name of the field to order by. Prefix the field name with - for descending order.
     You can also provide a 'pageSize' as a way of restricting the number of results. You should use this when asked for things such as "top 10 results".
@@ -28,9 +29,10 @@ paths:
     get:
       operationId: getInvoices
       summary: |
-        Gets the list of invoices for a company. 
-        Query criteria can be applied, for example "amountDue > 500 && status != paid" or "customerRef.companyName=Sample Company". 
+        Gets the list of invoices for a company (Accounts Receivable).
+        Query criteria can be applied, for example "amountDue>500&&status!=Paid" or "customerRef.companyName=Sample Company". 
         Do NOT wrap search strings in quotes.
+        An orderBy clause may also be applied, and a pageSize can be specified. 
       parameters:
       - in: query
         name: companyId
@@ -45,7 +47,7 @@ paths:
         required: false
         description: |
           Query criteria to use to return a subset of invoices. 
-          Valid filed names for the query are invoiceNumber, customerRef.id, customerRef.companyName, issueDate, dueDate, subTotal, 
+          Valid field names for the query are invoiceNumber, customerRef.id, customerRef.companyName, issueDate, currency, dueDate, subTotal, 
           additionalTaxAmount, totalTaxAmount, amountDue, totalAmount, discountPercentage, status.
       - in: query
         name: orderBy
@@ -53,8 +55,8 @@ paths:
           type: string
         required: false
         description: |
-          Name of field to order by. Prefix with a minus sign for descending order. Valid qu 
-          Valid field names to order by are invoiceNumber, customerRef.id, customerRef.companyName, issueDate, dueDate, subTotal, 
+          Name of field to order by. Prefix with a minus sign for descending order.
+          Valid field names to order by are invoiceNumber, customerRef.id, customerRef.companyName, issueDate, currency, dueDate, subTotal, 
           additionalTaxAmount, totalTaxAmount, amountDue, totalAmount, discountPercentage, status.
       - in: query
         name: pageSize
@@ -62,7 +64,50 @@ paths:
           type: integer
         required: false
         description: |
-          Restricts the number of returned results. Use this when asked for "Top X results".
+          Restricts the number of returned results. Use this when asked for "Top N results".
+      responses:
+        "200":
+          description: OK
+  /bills:
+    get:
+      operationId: getBills
+      summary: |
+        Gets the list of bills for a company (Accounts Payable).
+        Query criteria can be applied, for example "amountDue>500&&status!=Paid" or "supplierRef.companyName=Sample Company". 
+        Do NOT wrap search strings in quotes.
+        An orderBy clause may also be applied, and a pageSize can be specified. 
+      parameters:
+      - in: query
+        name: companyId
+        schema:
+          type: string
+        required: true
+        description: Company ID to retrieve bills for.
+      - in: query
+        name: query
+        schema:
+          type: string
+        required: false
+        description: |
+          Query criteria to use to return a subset of bills. 
+          Valid field names for the query are reference, supplierRef.id, supplierRef.companyName, issueDate, currency, dueDate, subTotal, 
+          additionalTaxAmount, totalTaxAmount, amountDue, totalAmount, discountPercentage, status.
+      - in: query
+        name: orderBy
+        schema:
+          type: string
+        required: false
+        description: |
+          Name of field to order by. Prefix with a minus sign for descending order.
+          Valid field names to order by are reference, supplierRef.id, supplierRef.companyName, issueDate, currency, dueDate, subTotal, 
+          additionalTaxAmount, totalTaxAmount, amountDue, totalAmount, discountPercentage, status.
+      - in: query
+        name: pageSize
+        schema:
+          type: integer
+        required: false
+        description: |
+          Restricts the number of returned results. Use this when asked for "Top N results".
       responses:
         "200":
           description: OK

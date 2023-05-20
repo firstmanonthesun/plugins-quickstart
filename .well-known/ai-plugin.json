@@ -1,5 +1,5 @@
 {
-    "schema_version": "v2",
+    "schema_version": "v1",
     "name_for_human": "Codat Company Data",
     "name_for_model": "Codat",
     "description_for_human": "Plugin for interacting with SMB company data through Codat.",
