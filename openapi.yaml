@@ -1,93 +1,68 @@
 openapi: 3.0.1
 info:
-  title: TODO Plugin
-  description: A plugin that allows the user to create and manage a TODO list using ChatGPT. If you do not know the user's username, ask them first before making queries to the plugin. Otherwise, use the username "global".
+  title: Codat Plugin
+  description: |
+    A plugin that allows the user to interrogate company data using ChatGPT. If the user doesn't specify which company they want, ask them first. 
+    You can also provide them with a list of available companies. 
+    Most operations can be called without a query string, and they will perform an open query and return an array of items or aggregated results. 
+    If supplying a 'query' string, the following comparison operators are supported = != > < >= <= ~ (contains), 
+    and they can be combined using logical operators && (AND) and || (OR), and curly braces for grouping of logical operations. 
+    For example, "{totalAmount > 100 || totalAmount < 50} && status != paid". 
+    Here is an example of a query using a string value "companyName=Sample Company".
+    You can also provide an 'orderBy' string, which should be the name of the field to order by. Prefix the field name with - for descending order.
+    You can also provide a 'pageSize' as a way of restricting the number of results. You should use this when asked for things such as "top 10 results".
   version: 'v1'
 servers:
   - url: http://localhost:5003
 paths:
-  /todos/{username}:
+  /companies:
     get:
-      operationId: getTodos
-      summary: Get the list of todos
-      parameters:
-      - in: path
-        name: username
-        schema:
-            type: string
-        required: true
-        description: The name of the user.
+      operationId: getCompanies
+      summary: |
+        Gets the list of available connected companies. 
+        It is the "id" field that should be supplied as the "companyId" in company-specific operations.
       responses:
         "200":
           description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/getTodosResponse'
-    post:
-      operationId: addTodo
-      summary: Add a todo to the list
+  /invoices:
+    get:
+      operationId: getInvoices
+      summary: |
+        Gets the list of invoices for a company. 
+        Query criteria can be applied, for example "amountDue > 500 && status != paid" or "customerRef.companyName=Sample Company". 
+        Do NOT wrap search strings in quotes.
       parameters:
-      - in: path
-        name: username
+      - in: query
+        name: companyId
         schema:
-            type: string
-        required: true
-        description: The name of the user.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/addTodoRequest'
-      responses:
-        "200":
-          description: OK
-    delete:
-      operationId: deleteTodo
-      summary: Delete a todo from the list
-      parameters:
-      - in: path
-        name: username
-        schema:
-            type: string
-        required: true
-        description: The name of the user.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/deleteTodoRequest'
-      responses:
-        "200":
-          description: OK
-
-components:
-  schemas:
-    getTodosResponse:
-      type: object
-      properties:
-        todos:
-          type: array
-          items:
-            type: string
-          description: The list of todos.
-    addTodoRequest:
-      type: object
-      required:
-      - todo
-      properties:
-        todo:
           type: string
-          description: The todo to add to the list.
-          required: true
-    deleteTodoRequest:
-      type: object
-      required:
-      - todo_idx
-      properties:
-        todo_idx:
+        required: true
+        description: Company ID to retrieve invoices for.
+      - in: query
+        name: query
+        schema:
+          type: string
+        required: false
+        description: |
+          Query criteria to use to return a subset of invoices. 
+          Valid filed names for the query are invoiceNumber, customerRef.id, customerRef.companyName, issueDate, dueDate, subTotal, 
+          additionalTaxAmount, totalTaxAmount, amountDue, totalAmount, discountPercentage, status.
+      - in: query
+        name: orderBy
+        schema:
+          type: string
+        required: false
+        description: |
+          Name of field to order by. Prefix with a minus sign for descending order. Valid qu 
+          Valid field names to order by are invoiceNumber, customerRef.id, customerRef.companyName, issueDate, dueDate, subTotal, 
+          additionalTaxAmount, totalTaxAmount, amountDue, totalAmount, discountPercentage, status.
+      - in: query
+        name: pageSize
+        schema:
           type: integer
-          description: The index of the todo to delete.
-          required: true
+        required: false
+        description: |
+          Restricts the number of returned results. Use this when asked for "Top X results".
+      responses:
+        "200":
+          description: OK

@@ -1,9 +1,9 @@
 {
-    "schema_version": "v1",
-    "name_for_human": "TODO Plugin (no auth)",
-    "name_for_model": "todo",
-    "description_for_human": "Plugin for managing a TODO list, you can add, remove and view your TODOs.",
-    "description_for_model": "Plugin for managing a TODO list, you can add, remove and view your TODOs.",
+    "schema_version": "v2",
+    "name_for_human": "Codat Company Data",
+    "name_for_model": "Codat",
+    "description_for_human": "Plugin for interacting with SMB company data through Codat.",
+    "description_for_model": "Plugin for interacting with SMB company data through Codat.",
     "auth": {
       "type": "none"
     },
@@ -12,8 +12,8 @@
       "url": "http://localhost:5003/openapi.yaml",
       "is_user_authenticated": false
     },
-    "logo_url": "http://localhost:5003/logo.png",
-    "contact_email": "legal@example.com",
-    "legal_info_url": "http://example.com/legal"
+    "logo_url": "http://localhost:5003/codat.png",
+    "contact_email": "n.oconnor@codat.io",
+    "legal_info_url": "https://codat.io/legals/"
   }
   
